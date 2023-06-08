@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チャットアプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="output"> </div>
+        <div>
+            <div>
+                名前：<input type="text" id="uname">
+            </div>
+            <div>
+                <textarea id="text" cols="80" rows="5" class=""></textarea>
+                <button id="send">送信</button>
+            </div>
+            <div class="bt_deleteForm">
+                <input type="button" value="削除" id="deleteButton">
+            </div>  
+        </div>  
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+        import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+            from "https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app); 
+        const dbRef = ref(db, "chat");
+
+        $("#send").on("click",function(){
+            const msg = {
+                uname:$("#uname").val(),
+                text:$("#text").val()
+            }
+            const newPostRef = push(dbRef);
+            set(newPostRef,msg);
+
+            $("#uname").val("")
+            $("#text").val("");
+        });
+
+        onChildAdded(dbRef,function(data){
+            const msg = data.val();
+            const key = data.key;
+            let h =`
+            <h1>
+                <p>${msg.uname}</p>
+                <p>${msg.text}</p>
+            </h1>
+            `
+            $("#output").append(h);
+        })
+        document.getElementById("deleteButton").addEventListener("click", deleteMessage);
+
+        function deleteMessage() {
+        const output = document.getElementById("output");
+        output.innerHTML = "";
+        }
+    </script>
+    </div>
+</body>
+
+</html>
